@@ -2,4 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-data/driedorf_1.las
+data/lasR/driedorf_1.las
+data/lidR
+lidar_EON2023
