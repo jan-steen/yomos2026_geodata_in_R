@@ -5,3 +5,5 @@
 data/lasR/driedorf_1.las
 data/lidR
 lidar_EON2023
+/.quarto/
+**/*.quarto_ipynb
