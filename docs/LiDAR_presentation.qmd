@@ -85,7 +85,7 @@ trees <- readLAS("../data/lidR/2023-08-30_15-19-13_100pct_height.laz")
 We want to crop our point cloud and reduce the point cloud density to accelerate 
 further analyses. Then we plot our point cloud. 
 
-```{r}
+```{r rgl setup}
 #| label: setup
 #| include: false
 library(rgl)
@@ -100,17 +100,6 @@ trees_dec <- decimate_points(trees_clip, algorithm = random(500))
 plot(trees_dec)
 rglwidget(width = 800, height = 600)
 ```
-
-## calculating pixel metrics
-
-We now have thousands (or millions) of points with X,Y and Z coordinates. 
-Therefore we can compute some basic statistics with them.
-
-```{r statistics, echo = TRUE}
-meanz <- pixel_metrics(trees_dec, func = ~mean(Z), res= 1)
-plot(meanz)
-```
-
 ## plotting transects
 
 For visualisation we can plot transects through our point cloud. 
@@ -123,6 +112,17 @@ ggplot(trees_tr@data, aes(X,Z, color = Z)) +
   theme_minimal() +
   scale_color_gradientn(colours = height.colors(50))
 ```
+
+## calculating pixel metrics
+
+We now have thousands (or millions) of points with X,Y and Z coordinates. 
+Therefore we can compute some basic statistics with them.
+
+```{r statistics, echo = TRUE}
+meanz <- pixel_metrics(trees_dec, func = ~mean(Z), res= 1)
+plot(meanz)
+```
+
 
 
 ## forest inventory calculations
@@ -148,7 +148,7 @@ plot(sf::st_geometry(ttops), add = TRUE, pch = 3)
 
 x <- plot(trees_dec, bg = "white", size = 4)
 add_treetops3d(x, ttops)
-
+rglwidget(width = 800, height = 600)
 ```
 
 
@@ -161,10 +161,14 @@ algo <- li2012()
 trees_dec <- decimate_points(trees_clip, algorithm = random(50))
 trees_seg <- segment_trees(trees_dec, algo) # segment point cloud
 plot(trees_seg, bg = "white", size = 4, color = "treeID") # visualize trees
+rglwidget(width = 800, height = 600)
 
 # Now we can look at single trees from our dataset
 tree <- filter_poi(trees_seg, treeID == 5)
 plot(tree, size = 8, bg = "white")
+rglwidget(width = 800, height = 600)
+
+## this did not produce a plot
 ```
 
 
@@ -225,6 +229,8 @@ reduced <- decimate_points(las, random(20))
 clipped <- clip_circle(reduced, data$Lon[1], data$Lat[1], 60)
 
 plot(clipped, color = "RGB")
+rglwidget(width = 800, height = 600)
+## no plot as well ??
 
 writeLAS(clipped,"../data/lasR/driedorf_1_reduced.las")
 ```
@@ -240,7 +246,6 @@ We can then plot our point cloud for a first look
 
 ```{r file path, echo = TRUE}
 path <- list.files("../data/lasR/", pattern = ".las", full.names = TRUE, recursive = TRUE)
-path
 
 # we only want a single file for now
 f <- path[2]
@@ -274,7 +279,7 @@ which write out our ground points and a normalised point cloud.
 ```{r ground and normalise, echo = TRUE}
 write1 = write_las(paste0("../data/lasR/*_ground.las"), filter = keep_ground())
 write2 = write_las(paste0("../data/lasR/*_normalized.las"), )
-del = triangulate(filter = keep_ground())
+del = lasR::triangulate(filter = keep_ground())
 norm = transform_with(del, "-")
 pipeline =  write1 + del + norm + write2
 ans = exec(pipeline, on = f)
@@ -290,9 +295,11 @@ path <- list.files("../data/lasR/", pattern = ".las", full.names = TRUE, recursi
 
 ground <- readLAS(path[3])
 plot(ground, color = "RGB")
+rglwidget(width = 800, height = 600)
 
 normalise <- readLAS(path[4])
 plot(normalise, color = "RGB")
+rglwidget(width = 800, height = 600)
 ```
 ## rasterise LiDAR data
 
@@ -300,7 +307,7 @@ For some use cases we need raster data, which we can get if we change our pipeli
 and add the 'rasterize' function. 
 
 ```{r rasterise, warning = FALSE, echo = TRUE}
-del = triangulate(filter = keep_ground())
+del = lasR::triangulate(filter = keep_ground())
 dtm = lasR::rasterize(res = 1)
 pipeline = del + dtm
 ans = exec(pipeline, on = f)
@@ -318,7 +325,7 @@ To start, we produce a raster from our normalised point cloud and then use
 'local maximum raster()' and 'region_growing()' to detect the trees. 
 
 ```{r tree detection, warning=FALSE, echo = TRUE}
-del = triangulate(filter = keep_first())
+del = lasR::triangulate(filter = keep_first())
 chm = lasR::rasterize(0.5, del)
 chm2 = pit_fill(chm)
 seed = local_maximum_raster(chm2, min_height = 3, ws = 7)
@@ -354,7 +361,11 @@ ans
 ```
 
 
+## conclusion
 
+* both packages perform well for most jobs
+* lidR has more experimental options
+* lasR is especially useful for large amounts of data
 
 
 
