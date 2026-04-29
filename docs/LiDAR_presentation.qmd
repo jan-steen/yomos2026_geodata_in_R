@@ -6,7 +6,7 @@ format:
     embed-resources: false
     scrollable: true
   html:     
-    self-contained: true
+    self-contained: false
     includes:
       in_header: rglwidget.html
 editor: visual
@@ -96,7 +96,7 @@ setupKnitr(autoprint = TRUE)
 
 ```{r decimate, echo = TRUE}
 trees_clip <- clip_rectangle(trees, -60, 20, -20, 60)
-trees_dec <- decimate_points(trees_clip, algorithm = random(500))
+trees_dec <- decimate_points(trees_clip, algorithm = random(100))
 plot(trees_dec)
 rglwidget(width = 800, height = 600)
 ```
