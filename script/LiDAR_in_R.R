@@ -1,0 +1,306 @@
+
+# lasR is currently not on CRAN and has to be installed externally.
+
+#install.packages('lasR', repos = 'https://r-lidar.r-universe.dev')
+library(lasR)
+#install.packages("lidR")
+library(lidR)
+ 
+#for some further steps, we also install terra and sf
+#install.packages("terra")
+library(terra)
+#install.packages("sf")
+library(sf)
+library(ggplot2)
+
+# for further reading:
+# Maeda et al (2025), Expanding forest research with terrestrial LiDAR technology
+
+
+################################################################################
+## First steps with .las files
+  
+#Point clouds can be read using the 'readLAS()' function
+
+trees <- readLAS("data/lidR/2023-08-30_15-19-13_100pct_height.laz")
+ 
+
+# Simple point cloud manipulations
+
+# crop to a defined area
+trees_clip <- clip_rectangle(trees, -60, 20, -20, 60)
+
+# reduce point cloud density
+trees_dec <- decimate_points(trees_clip, algorithm = random(200))
+ 
+# point clouds can simply be plotted using the plot() function
+plot(trees_dec)
+
+
+#For visualisation we can also plot transects through our point cloud. 
+
+trees_tr <- clip_transect(trees_dec, c(-40,20) ,c(-40,60) , width = 4, xz = TRUE)
+ggplot(trees_tr@data, aes(X,Z, color = Z)) + 
+  geom_point(size = 0.5) + 
+  coord_equal() + 
+  theme_minimal() +
+  scale_color_gradientn(colours = height.colors(50))
+ 
+
+
+################################################################################
+## Pixel metrics
+
+# We now have thousands (or millions) of points with X,Y and Z coordinates. 
+# Therefore we can compute some basic statistics with them.
+
+meanz <- pixel_metrics(trees_dec, func = ~mean(Z), res= 1)
+plot(meanz)
+
+  
+################################################################################
+## Forest inventory
+  
+#To start our small forest inventory, we produce a canopy height model 
+
+col <- height.colors(25)
+chm <- rasterize_canopy(trees_clip, res = 0.5, p2r())
+plot(chm, col = col)
+ 
+
+## Then we want to identify the tree tops to delienate all trees.
+
+ttops <- locate_trees(trees_dec, lmf(ws = 3))
+chmdec <- rasterize_canopy(trees_dec, res = 0.5, p2r())
+
+plot(chmdec, col = height.colors(50))
+plot(sf::st_geometry(ttops), add = TRUE, pch = 3)
+
+
+## We can also plot it in 3D
+
+x <- plot(trees_dec, bg = "white", size = 4)
+add_treetops3d(x, ttops)
+
+
+## And based on the tree tops, we can segment all trees using one of two algorithms.
+
+algo <- dalponte2016(chmdec, ttops)
+algo <- li2012()
+
+# we want to decrease the resolution even more to reduce processing time
+trees_dec <- decimate_points(trees_clip, algorithm = random(50))
+trees_seg <- segment_trees(trees_dec, algo) # segment point cloud
+ 
+## visualize trees
+plot(trees_seg, bg = "white", size = 4, color = "treeID")
+
+
+## Now we can look at single trees from our dataset
+
+tree <- filter_poi(trees_seg, treeID == 5)
+plot(tree, size = 8, bg = "white")
+
+ 
+################################################################################
+## Calculating woody biomass
+
+## An important part of tree inventories is to calculate the biomass of wood on a
+## specific area. 
+
+## Using custom metrics we try to get a broad assumption of biomass 
+## for our segmented trees. 
+
+custom_crown_metrics <- function(z, i) { # user-defined function
+  metrics <- list(
+    z_max = max(z),   # max height
+    z_sd = sd(z),     # vertical variability of points
+    i_mean = mean(i), # mean intensity
+    i_max  = max(i)   # max intensity
+  )
+  return(metrics) # output
+}
+
+metrics <- crown_metrics(trees_seg, func = ~custom_crown_metrics(Z, Intensity)) # calculate intensity metrics
+metrics$G <- 0.7 * metrics$z_max + 0.1 * metrics$i_mean # set value of interest
+ 
+## plotting mean height
+plot(metrics["G"], pal = hcl.colors, pch = 19) 
+ 
+
+
+  
+## Then we aggregate the biomass on a raster and calculate
+## it for the entire area.
+
+r <- terra::rast(ext(trees_seg),  resolution = 10)
+v <- terra::vect(metrics["G"])
+map <- terra::rasterize(v, r, field = "G", fun = sum) # extract sum of G at 10m
+ 
+plot(map, col = hcl.colors(15)) 
+ 
+
+
+## using raster calculations we get a broad idea of our biomass
+
+# calculating overall biomass based on the raster
+biomass <- sum(values(map)) # Biomass on 40 x 40 meter
+biomass <- biomass / 16     # Biomass on 10 x 10 meter
+biomass <- biomass * 100    # Biomass per ha
+
+biomass                     # ~ 230 tonns
+
+
+
+
+################################################################################
+## Trying out lasR as an alternative
+  
+## Before starting with lasR we reduce our point cloud using lidR
+
+
+data <- read.csv2("data/lasR/metadata.csv")
+
+las <- readLAS("data/lasR/driedorf_1.las")
+reduced <- decimate_points(las, random(20))
+clipped <- clip_circle(reduced, data$Lon[1], data$Lat[1], 60)
+
+## write out the reduced las file to get back to it in the future
+# writeLAS(clipped,"data/lasR/driedorf_1_reduced.las")
+ 
+
+## We can then plot our point cloud for a first look
+plot(clipped, color = "RGB")
+
+
+################################################################################
+## First steps using lasR
+  
+# lasR does not load data into the R environment
+# so called pipelines are written and executed on a file
+# way more effective for larger or multiple files
+
+##First of all we need a path to our .las files
+path <- list.files("data/lasR/", pattern = ".las", full.names = TRUE, recursive = TRUE)
+
+# we only want a single file for now
+f <- path[2]
+ 
+
+
+################################################################################
+## Triangulation 1/2
+
+# First computation step for further analysis
+# produces a "net" which spans over the points
+# the result is a digital terrain model
+
+
+
+# We produce a short pipeline which combines reading an las file and then triangulating 
+# the ground points. Then we execute the pipeline on the file in our filepath.
+
+pipeline = reader() + triangulate(filter = keep_ground(), ofile = tempgpkg())
+ans = exec(pipeline, on = f)
+ans
+ 
+# However we produce 'nothing' because lasR itself does not save data in our environment. 
+
+# We have to include certain steps in our pipeline like 'write_las'.
+
+  
+# In our next try, we again perform a triangulation, but include two additional functions,
+# which write out our ground points and a normalised point cloud. 
+
+write1 = write_las(paste0("data/lasR/*_ground.las"), filter = keep_ground())
+write2 = write_las(paste0("data/lasR/*_normalized.las"), )
+del = lasR::triangulate(filter = keep_ground())
+norm = transform_with(del, "-")
+pipeline =  write1 + del + norm + write2
+ans = exec(pipeline, on = f)
+ans
+
+
+## Now we can take a look at our newly produced data. 
+
+path <- list.files("data/lasR/", pattern = ".las", full.names = TRUE, recursive = TRUE)
+ 
+
+## Digital terrain model
+
+ground <- readLAS(path[3])
+plot(ground, color = "RGB")
+
+
+
+## Normalised point cloud
+
+normalise <- readLAS(path[4])
+plot(normalise, color = "RGB")
+
+
+
+################################################################################
+## Rasterise LiDAR data
+  
+## For some use cases we need raster data, which we can get if we change our pipeline
+## and add the 'rasterize' function. 
+
+
+del = lasR::triangulate(filter = keep_ground())
+dtm = lasR::rasterize(res = 1)
+pipeline = del + dtm
+ans = exec(pipeline, on = f)
+
+plot(ans)
+
+  
+  
+################################################################################
+## Complex pipelines
+  
+## Again, we want to dive into forest monitoring applications:
+  
+## We want to detect local maxima and therefore delineate single trees
+
+del = lasR::triangulate(filter = keep_first())
+chm = lasR::rasterize(0.5, del)
+chm2 = pit_fill(chm)
+seed = local_maximum_raster(chm2, min_height = 3, ws = 7)
+tree = region_growing(chm2, seed)
+pipeline = del + chm + chm2 +  seed + tree
+ans = exec(pipeline, on = path[4])
+ 
+
+col = grDevices::colorRampPalette(c("blue", "cyan2", "yellow", "red"))(25)
+col2 = grDevices::colorRampPalette(c("purple", "blue", "cyan2", "yellow", "red", "green"))(50)
+terra::plot(ans$rasterize, col = col, mar = c(1, 1, 1, 3))
+
+terra::plot(ans$pit_fill, col = col, mar = c(1, 1, 1, 3))
+
+terra::plot(ans$region_growing, col = col2[sample.int(50, 277, TRUE)], mar = c(1, 1, 1, 3))
+plot(ans$local_maximum$geom, add = T, pch = 19, cex = 0.5)
+
+ans$local_maximum
+ 
+
+
+
+################################################################################
+## Point cloud calculations
+  
+## similar to lidR, we can also perform calculations with our point clouds based on
+## defined functions
+
+
+## Calculating the mean height
+
+
+meanz = function(data){ return(mean(data$Z)) }
+
+call = callback(meanz, expose = "xyz")
+pipeline <- call 
+ans <- exec(pipeline, on = path[4])    
+ans 
+ 
+  
