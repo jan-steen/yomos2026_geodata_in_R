@@ -15,3 +15,73 @@ footer: "YoMos Workshop 2026 - Analysing geodata in R"
 code-fold: true
 ---
 
+## Geodata
+
+simplified definition:
+
+* Digital information, which is associated with a specific position on earth
+
+:::{.fragment}
+What kind of geodata do you know?
+:::
+
+## Types of geodata
+
+add some images here: 
+
+:::: {.columns}
+
+::: {.column width="50%"}
+Vector data
+
+* points, lines or polygons
+* e.g. streets, plant observations, political borders
+* shapefile, geopackage, geoJSON,...
+:::
+
+
+::: {.column width="50%" .fragment}
+Raster data
+
+* grid filled with information
+* e.g. satellite images, corine land cover
+* .tif files
+:::
+::::
+
+## Using R for analysing geodata
+
+* open source platform
+* flexible (statistical) analysis and visualisation
+* automation and replication of workflows
+* easy sharing of code through git
+* various packages for special use cases
+
+## Basic R packages for geodata
+
+* "sf" for vector data
+* "terra" for raster data
+
+(maybe implement some links/images to those packages)
+
+## First steps with vector data
+
+## First steps with raster data
+
+## Raster-vector operations
+
+## 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
