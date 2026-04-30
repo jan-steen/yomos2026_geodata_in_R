@@ -3,8 +3,9 @@ title: "LiDAR in R - YoMos 2026"
 author: "Jan Steen"
 format: 
   revealjs: 
-    embed-resources: false
+    embed-resources: true
     scrollable: true
+    smaller: true
   html:     
     self-contained: false
     includes:
@@ -21,8 +22,13 @@ code-fold: true
 -   equipped to drones, airplanes or ground based stations
 -   output are three dimensional point clouds
 
+```{r}
+#| label: M300
+#| fig-align: center
+#| fig-cap: "DJI M300 with a L1 LiDAR Sensor"
+knitr::include_graphics("../figures/Bild1.png")
+```
 
-![](../figures/Bild1.png)
 
 ::: notes
 LiDAR is an abbreviation for "Light Detection and Ranging" and describes a special type of sensor which uses laser beams to measure distances of objects to a sensor. Sensors are typically equipped to ground based stations, drones or airplanes and produce three dimensional point clouds. It is widely used in forestry but also other kinds of ecological research with a focus on the structure of objects or landscapes.
@@ -37,7 +43,14 @@ Two main packages to analyse LiDAR data
 
 * "lasR"(https://r-lidar.github.io/lasR/articles/tutorial.html)
 
-![](../figures/point_cloud.png)
+```{r}
+#| label: point cloud
+#| fig-align: center
+#| fig-cap: "example point cloud from a forest in the Harz mountains"
+knitr::include_graphics("../figures/point_cloud.png")
+```
+
+
 
 :::notes
 There are two packages which are mainly used for analysing LiDAR data in R.
