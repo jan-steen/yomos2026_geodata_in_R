@@ -118,7 +118,7 @@ setupKnitr(autoprint = TRUE)
 
 ```{r decimate, echo = TRUE}
 trees_clip <- clip_rectangle(trees, -60, 20, -20, 60)
-trees_dec <- decimate_points(trees_clip, algorithm = random(200))
+trees_dec <- decimate_points(trees_clip, algorithm = random(150))
 ```
 
 ::: {.fragment}
@@ -129,7 +129,7 @@ rglwidget(width = 800, height = 400)
 :::
 
 ```{r further decimating}
-trees_dec <- decimate_points(trees_clip, algorithm = random(100))
+trees_dec <- decimate_points(trees_clip, algorithm = random(80))
 ```
 
 
