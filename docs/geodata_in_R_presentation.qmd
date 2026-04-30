@@ -1,0 +1,17 @@
+---
+title: "Analysing Geodata in R - YoMos 2026"
+author: "Yasemin Kukla & Jan Steen"
+format: 
+  revealjs: 
+    embed-resources: true
+    scrollable: true
+    smaller: true
+  html:     
+    self-contained: false
+    includes:
+      in_header: rglwidget.html
+editor: visual
+footer: "YoMos Workshop 2026 - Analysing geodata in R"
+code-fold: true
+---
+
