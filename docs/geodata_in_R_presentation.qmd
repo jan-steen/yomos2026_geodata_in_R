@@ -12,7 +12,7 @@ format:
       in_header: rglwidget.html
 editor: visual
 footer: "YoMos Workshop 2026 - Analysing geodata in R"
-code-fold: true
+code-fold: show
 ---
 
 ## Geodata
@@ -63,6 +63,11 @@ Raster data
 * "terra" for raster data
 
 (maybe implement some links/images to those packages)
+
+```{r, echo = TRUE}
+library(terra)
+```
+
 
 ## First steps with vector data
 
