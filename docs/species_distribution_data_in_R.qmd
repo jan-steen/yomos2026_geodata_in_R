@@ -17,9 +17,17 @@ footer: "YoMos Workshop 2026 - Analysing geodata in R"
 code-fold: show
 ---
 
-## What we will do
+## What will we learn and why?
 
--   show the geographic distribution (and richness) of species
+Central question: What is driving species distributions?
+
+Usually, there are many factors to be considered... two main ones being: specific species traits and climate.
+
+Here, we will learn easy first steps for investigating broad distributions patters, especially helpful when dealing with large scale analysis (e.g. including many species or large geographic areas)
+
+Specifically, we will:
+
+-   map the geographic distribution (and richness) of species
 
 -   create species richness maps for a discrete trait
 
@@ -27,21 +35,19 @@ code-fold: show
 
 -   extract climate variables for the distribution are of a species
 
-## Data we use
+## The datasets we use
 
-::: incremental
--   Spatial Data: Species distributions as polygons from [GARD 1.7](https://datadryad.org/dataset/doi:10.5061/dryad.9cnp5hqmb)
-    -   here we only use a subset of the original dataset of some geckos species present in Madagascar
--   Trait Data: A table with all kinds of traits on reptiles from [RepTraits](https://figshare.com/articles/dataset/ReptTraits_a_comprehensive_database_of_ecological_traits_in_reptiles/24572683) version 1.2
-    -   here we only use the traits "activity" and "max_SVL" for the geckos species
--   Climate Data: variable bio 1 (mean annual temperature) averages from 1981 - 2010 version 2.1 from [CHELSA](https://www.chelsa-climate.org/datasets/chelsa_bioclim)
-:::
+For the purpose of this workshop, we will only use a specific subset of larger datasets. Here you can find the original data:
 
-## R code
+-   Spatial Data: Global species distribution polygons for terrestrial reptiles [GARD 1.7](https://datadryad.org/dataset/doi:10.5061/dryad.9cnp5hqmb) (Global Assessment of Reptile Distributions)
 
-------------------------------------------------------------------------
+-   Trait Data: Table with numerous traits of reptiles from [RepTraits](https://figshare.com/articles/dataset/ReptTraits_a_comprehensive_database_of_ecological_traits_in_reptiles/24572683) version 1.2
 
-### packages we need
+-   Climate Data: annual mean temperature raster (averages from 1981-2010) from [CHELSA](https://www.chelsa-climate.org/datasets/chelsa_bioclim) (Climatologies at high resolution for the earth's land surface areas) version 2.1
+
+## let's start with the R code!
+
+1.  install and load the required R packages
 
 ```{r}
 # install.packages(c("terra", "sf", "exactextractr"))
@@ -50,13 +56,14 @@ library(exactextractr)
 library(sf)
 ```
 
+2.  load the data (you can find it in ../data/gecko_data/)
+    -   a trait table (Madagaskar_Gecko_Traits.csv)
+    -   species distribution polygons (Madagaskar_geckos_GARD1.7.shp)
+    -   raster of the annual mean temperature in Madagaskar (bio1_Madagaskar.tif)
+
 ------------------------------------------------------------------------
 
-### getting data ready
-
-------------------------------------------------------------------------
-
-#### loading the traits table
+Our traits table includes 94 gecko species from Madagaskar with their activity time (Nocturnal/Diurnal) and maximum SVL (Snout-Vent Length) in mm
 
 ```{r}
 gecko_traits <- read.csv("../data/gecko_data/Madagaskar_Gecko_Traits.csv")
@@ -65,7 +72,7 @@ head(gecko_traits)
 
 ------------------------------------------------------------------------
 
-#### loading the spatial data (species distributions polygons)
+The shapfile includes the spatial distribution polygons of the same 94 gecko species
 
 ```{r}
 shp_gecko <- read_sf("../data/gecko_data/Madagaskar_geckos_GARD1.7.shp")
@@ -75,7 +82,7 @@ head(shp_gecko)
 
 ------------------------------------------------------------------------
 
-#### loading the climate raster (annual mean temperature)
+The annual mean temperature (bio1) raster is restricted to the area of Madagaskar
 
 ```{r}
 bio1 <- rast("../data/gecko_data/bio1_Madagaskar.tif")
@@ -84,7 +91,7 @@ plot(bio1)
 
 ------------------------------------------------------------------------
 
-### a basic species richness map
+### Task 1: a simple species richness map
 
 ```{r}
 shp.a <- shp_gecko[1,] #subset for the first species of the list
@@ -114,16 +121,15 @@ Using the saved .tif file, you can make nice visualizations of the map with soft
 knitr::include_graphics("../figures/gecko_sp_richness_madagaskar.png")
 ```
 
-------
+------------------------------------------------------------------------
 
-### species richness map per trait (discrete)
+### Task 2: mapping a discrete trait
 
 ```{r}
 # activity Nocturnal
 activity.noc <- subset(gecko_traits, gecko_traits$Activity == "Nocturnal")
-head(activity.noc)
-shp.a <- subset(shp_gecko, shp_gecko$binomial == "Paroedura androyensis") #subset for the first species of the list
-richness_noc<- rasterize(shp.a, bio1) 
+shp.a <- subset(shp_gecko, shp_gecko$binomial %in% activity.noc[1,]) #subset for the first species
+richness_noc <- rasterize(shp.a, bio1) 
 richness_noc[is.na(richness_noc)] <- 0 
 
 for (i in 2:length(activity.noc$Species)){
@@ -132,14 +138,18 @@ for (i in 2:length(activity.noc$Species)){
   rast.i[is.na(rast.i)] <- 0
   richness_noc<- (rast.i + richness_noc)
 }
-richness_noc[richness_noc == 0] <- NA
-plot(richness_noc)
-writeRaster(richness_noc, "../data/gecko_data/richness_nocturnal_madagaskar.tif", overwrite=T)
 
+richness_noc[richness_noc == 0] <- NA
+writeRaster(richness_noc, "../data/gecko_data/richness_nocturnal_madagaskar.tif", overwrite=T)
+plot(richness_noc)
+```
+
+------------------------------------------------------------------------
+
+```{r}
 # activity Diurnal
 activity.diu <- subset(gecko_traits, gecko_traits$Activity == "Diurnal")
-head(activity.diu)
-shp.a <- subset(shp_gecko, shp_gecko$binomial == "Lygodactylus arnoulti") #subset for the first species of the list
+shp.a <- subset(shp_gecko, shp_gecko$binomial  %in% activity.noc[1,]) #subset for the first species
 richness_diu <- rasterize(shp.a, bio1) 
 richness_diu[is.na(richness_diu)] <- 0 
 
@@ -149,12 +159,15 @@ for (i in 2:length(activity.diu$Species)){
   rast.i[is.na(rast.i)] <- 0
   richness_diu<- (rast.i + richness_diu)
 }
+
 richness_diu[richness_diu == 0] <- NA
-plot(richness_diu)
 writeRaster(richness_diu, "../data/gecko_data/richness_diurnal_madagaskar.tif", overwrite=T)
+plot(richness_diu)
 ```
 
-### a map to see the average of a continuous trait
+------------------------------------------------------------------------
+
+### Task 3: mapping a continuous trait
 
 ```{r}
 shp.a <- shp_gecko[1,]
@@ -171,18 +184,18 @@ for (i in 2:nrow(shp_gecko)){
 	rast.i <- classify(rast.i, cbind(1, SVL.i))
 	richness_SVL<- (rast.i + richness_SVL)
 }
-richness_SVL[richness_SVL == 0] <- NA
-plot(richness_SVL)
 
+richness_SVL[richness_SVL == 0] <- NA
 overall_richness <- rast("../data/gecko_data/gecko_sp_richness_Madagascar.tif")
 average_SVL <- richness_SVL/overall_richness
 plot(average_SVL)
 ```
 
-### extract climate data
+------------------------------------------------------------------------
+
+### Task 4: extracting climate data 
 
 ```{r}
-# combine CHELSA data with distribution data
 res_complete <- c()
 for (i in 1:length(shp_gecko)) {
   shp.i <- shp_gecko[i,]
@@ -194,3 +207,12 @@ for (i in 1:length(shp_gecko)) {
 head(res_complete)
 write.csv(res_complete, "../data/gecko_data/CHELSA_madagaskar_gecko.csv")
 ```
+
+------------------------------------------------------------------------
+
+## Conclusions
+
+-   continuous and discrete traits can be mapped to show the biogeography of a trait --\> often a helpful first step when investigating broader patterns
+-   we can easily extract climate data from within a species distribution to find out about the climatic conditions said species occupies
+
+Any further questions? Don't hesitate to reach out during the seminar or afterwards via email: [ykukla\@uni-bonn.de](mailto:ykukla@uni-bonn.de){.email}
