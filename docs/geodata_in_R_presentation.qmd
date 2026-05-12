@@ -5,7 +5,7 @@ format:
   revealjs: 
     embed-resources: true
     scrollable: true
-    smaller: false
+    smaller: true
   html:     
     self-contained: false
     includes:
@@ -17,68 +17,243 @@ code-fold: show
 
 ## Geodata
 
+::: {style="font-size: 125%;"}
 simplified definition:
 
-* Digital information, which is associated with a specific position on earth
+-   Digital information, which is associated with a specific position on earth
+:::
 
-:::{.fragment .absolute bottom=200 left=0}
+::: {.fragment .absolute bottom="200" left="0" style="font-size: 125%;"}
 What kinds of geodata do you know?
 :::
 
-## Types of geodata
+## Types of geodata 
 
-:::: {.columns}
-
-::: {.column width="50%"}
+::::::: columns 
+:::: {.column width="50%" style="font-size: 125%;"}
 Vector data
 
-::: {.incremental}
-* points, lines or polygons
-* e.g. streets, plant observations, political borders
-* shapefile, geopackage, geoJSON,...
-:::
-:::
-
-
-::: {.column width="50%" .fragment}
-Raster data
-
-::: {.incremental}
-* grid filled with information
-* e.g. satellite images, corine land cover
-* .tif files
-:::
+::: incremental
+-   points, lines or polygons
+-   e.g. streets, plant observations, political borders
+-   shapefile, geopackage, geoJSON,...
 :::
 ::::
 
+:::: {.column .fragment width="50%" style="font-size: 125%;"}
+Raster data
+
+::: incremental
+-   grid filled with information
+-   e.g. satellite images, corine land cover
+-   .tif files
+:::
+::::
+:::::::
+
 ## Using R for analysing geodata
 
-* open source platform
-* flexible (statistical) analysis and visualisation
-* automation and replication of workflows
-* easy sharing of code through git
-* various packages for special use cases
+::: {.incremental style="font-size: 125%;"}
+-   open source platform
+-   flexible (statistical) analysis and visualisation
+-   automation and replication of workflows
+-   easy sharing of code through git
+-   various packages for special use cases
+:::
 
 ## Basic R packages for geodata
 
-* "sf" for vector data
-* "terra" for raster data
+-   "sf" for vector data
+-   "terra" for raster data
 
+::: notes
 (maybe implement some links/images to those packages)
+:::
 
 ```{r, echo = TRUE}
+#install.packages("sf")
+library(sf)
+
+#install.packages("terra")
 library(terra)
 ```
 
-
 ## First steps with vector data
+
+Our example dataset 
+
+::: {.incremental}
+* OpenStreetMap (download.geofabrik.de/europe/germany/schleswig-holstein.html)
+* administrative boundaries (https://geodaten.schleswig-holstein.de/gaialight-sh/_apps/dladownload/dl-vg_kkag.html)
+
+:::
+
+::: fragment
+```{r read sf data, echo=TRUE,results='hide'}
+landuse <- st_read("../data/vectordata/landuse.gpkg")
+roads <- st_read("../data/vectordata/roads.gpkg")
+buildings <- st_read("../data/vectordata/buildings.gpkg")
+pois <- st_read("../data/vectordata/pois.gpkg")
+
+```
+:::
+
+## Simple features in R
+
+```{r showing sf objects, echo = TRUE}
+landuse
+```
+
+## Thematic queries
+
+Where are benches around us?
+
+```{r benches, echo = TRUE}
+library(dplyr)
+bench <- pois |> filter(fclass=="bench") 
+```
+
+::: fragment
+```{r plot benches}
+library(mapview)
+mapview(bench)
+```
+:::
+
+## Topological queries 1/2
+
+Which benches are located in the heathland?
+
+```{r benches in heathland, echo = TRUE}
+heath <- landuse |> filter(fclass=="heath")
+
+BenchInHeath <- st_intersects(bench,heath)
+BenchInHeath <- bench[lengths(BenchInHeath) > 0,]
+nrow(BenchInHeath)
+```
+
+::: fragment
+```{r plot heath benches}
+mapview(heath, col.regions = "hotpink2")+mapview(BenchInHeath ,col.regions = "sienna")
+```
+:::
+
+## Topological queries 2/2
+
+Finding a place for a short break
+
+```{r awi, echo=TRUE}
+AWI <- buildings |> filter(name=="AWI Gästehaus")
+```
+
+::: fragment
+```{r awi plot}
+mapview(AWI)
+```
+:::
+
+## Topological queries 2/2
+
+Finding a place for a short break
+
+```{r awi2, echo=TRUE}
+AWI <- buildings |> filter(name=="AWI Gästehaus")
+
+rest <- st_is_within_distance(bench, AWI, dist = 500)
+```
+
+::: fragment
+```{r}
+mapview(bench[lengths(rest) > 0,]) + mapview(AWI, col.regions="red")
+```
+:::
+
+## Vector calculations 1/2
+
+Mean area of Lister Heathlands
+
+```{r heath area, echo = TRUE}
+heath$area <- st_area(heath)
+mean(heath$area)
+```
+
+## Vector calculations 2/2
+
+Length of Streets in List
+```{r streets, echo =TRUE}
+roads$length <- st_length(roads)
+mean(roads$length)
+
+```
+
+::: fragment
+```{r}
+mapview(roads)
+```
+:::
+
+
 
 ## First steps with raster data
 
 ## Raster-vector operations
 
-## Projektionen 
+## Map projections
 
+::: {.incremental style="font-size: 125%;"}
+
+- 2 dimensional image of the 3 dimensional earth
+- maps can be either true in Area, shape, or distances
+- hundreds of projections have been developed
+- EPSG code defines the projection
+
+:::
+
+add a picture of a projection here
+
+
+## Projections in R
+
+::: {style="font-size: 125%;"}
+
+- R does not project 'on the fly' 
+- we have to check projections before performing calculations
+
+:::
+
+::: fragment
+```{r projections sf, echo=TRUE}
+bench
+```
+
+:::
+
+## Reproject in R
+
+Reproject Vector data
+```{r reproject sf, eval=FALSE, echo=TRUE}
+st_transform(x, st_crs(y))      ## use another sf object
+st_transform(x, "EPSG:4326")    ## use an epsg code
+```
+
+::: fragment
+
+Reproject Raster data
+```{r reproject raster, eval=FALSE, echo=TRUE}
+project(x, y)                   ## use another object
+project(x, 4326)                ## use an epsg code
+```
+
+:::
+
+::: fragment
+
+adding missing information
+```{r reproject raster, eval=FALSE, echo=TRUE}
+crs(x) <- "EPSG:4326"          
+```
+
+:::
 
 
 
