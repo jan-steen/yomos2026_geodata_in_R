@@ -1070,27 +1070,26 @@ Yasemin Kukla &amp; Jan Steen
 <ul>
 <li>Digital information, which is associated with a specific position on earth</li>
 </ul>
-<div class="fragment">
+<div class="fragment absolute" style="left: 0px; bottom: 200px; ">
 <p>What kind of geodata do you know?</p>
 </div>
 </section>
 <section id="types-of-geodata" class="slide level2">
 <h2>Types of geodata</h2>
-<p>add some images here:</p>
 <div class="columns">
 <div class="column" style="width:50%;">
 <p>Vector data</p>
 <ul>
-<li>points, lines or polygons</li>
-<li>e.g. streets, plant observations, political borders</li>
-<li>shapefile, geopackage, geoJSON,…</li>
+<li class="fragment">points, lines or polygons</li>
+<li class="fragment">e.g. streets, plant observations, political borders</li>
+<li class="fragment">shapefile, geopackage, geoJSON,…</li>
 </ul>
 </div><div class="column fragment" style="width:50%;">
 <p>Raster data</p>
 <ul>
-<li>grid filled with information</li>
-<li>e.g. satellite images, corine land cover</li>
-<li>.tif files</li>
+<li class="fragment">grid filled with information</li>
+<li class="fragment">e.g. satellite images, corine land cover</li>
+<li class="fragment">.tif files</li>
 </ul>
 </div></div>
 </section>
@@ -2128,7 +2127,7 @@ window.QuartoSupport = function () {
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
 'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
-'smaller': true,
+'smaller': false,
  
         // Display controls in the bottom right corner
         controls: false,

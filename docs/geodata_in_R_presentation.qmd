@@ -5,7 +5,7 @@ format:
   revealjs: 
     embed-resources: true
     scrollable: true
-    smaller: true
+    smaller: false
   html:     
     self-contained: false
     includes:
@@ -21,31 +21,33 @@ simplified definition:
 
 * Digital information, which is associated with a specific position on earth
 
-:::{.fragment}
-What kind of geodata do you know?
+:::{.fragment .absolute bottom=200 left=0}
+What kinds of geodata do you know?
 :::
 
 ## Types of geodata
-
-add some images here: 
 
 :::: {.columns}
 
 ::: {.column width="50%"}
 Vector data
 
+::: {.incremental}
 * points, lines or polygons
 * e.g. streets, plant observations, political borders
 * shapefile, geopackage, geoJSON,...
+:::
 :::
 
 
 ::: {.column width="50%" .fragment}
 Raster data
 
+::: {.incremental}
 * grid filled with information
 * e.g. satellite images, corine land cover
 * .tif files
+:::
 :::
 ::::
 
@@ -75,7 +77,7 @@ library(terra)
 
 ## Raster-vector operations
 
-## 
+## Projektionen 
 
 
 
