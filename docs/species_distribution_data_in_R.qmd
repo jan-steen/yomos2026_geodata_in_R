@@ -107,13 +107,12 @@ plot(richness)
 
 Using the saved .tif file, you can make nice visualizations of the map with softwares like QGIS or ArcGIS
 
-```{r}
-##| label: point cloud
-##| fig-align: center
-##| fig-cap: "QGIS map of gecko species richness in Madagaskar"
-#knitr::include_graphics("../figures/point_cloud.png")
+```{r, echo=FALSE}
+#| label: madagaskar map
+#| fig-align: center
+#| fig-cap: "QGIS map of gecko species richness in Madagaskar"
+knitr::include_graphics("../figures/gecko_sp_richness_madagaskar.png")
 ```
-
 
 ------
 
