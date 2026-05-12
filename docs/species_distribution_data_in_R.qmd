@@ -59,7 +59,7 @@ library(sf)
 #### loading the traits table
 
 ```{r}
-gecko_traits <- read.csv("Madagaskar_Gecko_Traits.csv")
+gecko_traits <- read.csv("../data/gecko_data/Madagaskar_Gecko_Traits.csv")
 head(gecko_traits)
 ```
 
@@ -68,8 +68,8 @@ head(gecko_traits)
 #### loading the spatial data (species distributions polygons)
 
 ```{r}
-shp_gecko <- read_sf("Madagaskar_geckos_GARD1.7.shp")
-# vect("Madagaskar_geckos_GARD1.7.shp") is also an option
+shp_gecko <- read_sf("../data/gecko_data/Madagaskar_geckos_GARD1.7.shp")
+# vect("../data/gecko_data/Madagaskar_geckos_GARD1.7.shp") is also an option
 head(shp_gecko)
 ```
 
@@ -78,7 +78,7 @@ head(shp_gecko)
 #### loading the climate raster (annual mean temperature)
 
 ```{r}
-bio1 <- rast("bio1_Madagaskar.tif")
+bio1 <- rast("../data/gecko_data/bio1_Madagaskar.tif")
 plot(bio1)
 ```
 
@@ -99,13 +99,23 @@ for (i in 2:nrow(shp_gecko)){
   richness <- (rast.i + richness)
 }
 richness[richness == 0] <- NA # return 0 to NAs
-writeRaster(richness, "gecko_sp_richness_Madagascar.tif", overwrite=T) # save for later
+writeRaster(richness, "../data/gecko_data/gecko_sp_richness_Madagascar.tif", overwrite=T) # save for later
 plot(richness)
 ```
 
----
+------------------------------------------------------------------------
 
 Using the saved .tif file, you can make nice visualizations of the map with softwares like QGIS or ArcGIS
+
+```{r}
+##| label: point cloud
+##| fig-align: center
+##| fig-cap: "QGIS map of gecko species richness in Madagaskar"
+#knitr::include_graphics("../figures/point_cloud.png")
+```
+
+
+------
 
 ### species richness map per trait (discrete)
 
@@ -125,7 +135,7 @@ for (i in 2:length(activity.noc$Species)){
 }
 richness_noc[richness_noc == 0] <- NA
 plot(richness_noc)
-writeRaster(richness_noc, "richness_nocturnal_madagaskar.tif", overwrite=T)
+writeRaster(richness_noc, "../data/gecko_data/richness_nocturnal_madagaskar.tif", overwrite=T)
 
 # activity Diurnal
 activity.diu <- subset(gecko_traits, gecko_traits$Activity == "Diurnal")
@@ -142,7 +152,7 @@ for (i in 2:length(activity.diu$Species)){
 }
 richness_diu[richness_diu == 0] <- NA
 plot(richness_diu)
-writeRaster(richness_diu, "richness_diurnal_madagaskar.tif", overwrite=T)
+writeRaster(richness_diu, "../data/gecko_data/richness_diurnal_madagaskar.tif", overwrite=T)
 ```
 
 ### a map to see the average of a continuous trait
@@ -165,7 +175,7 @@ for (i in 2:nrow(shp_gecko)){
 richness_SVL[richness_SVL == 0] <- NA
 plot(richness_SVL)
 
-overall_richness <- rast("gecko_sp_richness_Madagascar.tif")
+overall_richness <- rast("../data/gecko_data/gecko_sp_richness_Madagascar.tif")
 average_SVL <- richness_SVL/overall_richness
 plot(average_SVL)
 ```
@@ -183,5 +193,5 @@ for (i in 1:length(shp_gecko)) {
   res_complete <- rbind(res_complete, res.i)
 } 
 head(res_complete)
-write.csv(res_complete, "CHELSA_madagaskar_gecko.csv")
+write.csv(res_complete, "../data/gecko_data/CHELSA_madagaskar_gecko.csv")
 ```
