@@ -24,15 +24,13 @@ simplified definition:
 :::
 
 ::: {.incremental .absolute bottom="200" left="0" style="font-size: 125%;"}
-
-- Who did previous work with geodata?
-- What kinds of geodata do you know?
-
+-   Who did previous work with geodata?
+-   What kinds of geodata do you know?
 :::
 
-## Types of geodata 
+## Types of geodata
 
-::::::: columns 
+::::::: columns
 :::: {.column width="50%" style="font-size: 125%;"}
 Vector data
 
@@ -83,12 +81,11 @@ library(terra)
 
 ## First steps with vector data
 
-Our example dataset 
+Our example dataset
 
-::: {.incremental}
-* OpenStreetMap (download.geofabrik.de/europe/germany/schleswig-holstein.html)
-* administrative boundaries (https://geodaten.schleswig-holstein.de/gaialight-sh/_apps/dladownload/dl-vg_kkag.html)
-
+::: incremental
+-   OpenStreetMap (download.geofabrik.de/europe/germany/schleswig-holstein.html)
+-   administrative boundaries (https://geodaten.schleswig-holstein.de/gaialight-sh/\_apps/dladownload/dl-vg_kkag.html)
 :::
 
 ::: fragment
@@ -181,6 +178,7 @@ mean(heath$area)
 ## Vector calculations 2/2
 
 Length of Streets in List
+
 ```{r streets, echo =TRUE}
 roads$length <- st_length(roads)
 mean(roads$length)
@@ -193,78 +191,155 @@ mapview(roads)
 ```
 :::
 
-
-
 ## First steps with raster data
 
+Raster data is a grid of cells (pixels) where each cell stores a value.
+
+::::: columns
+::: {.column .incremental .fragment width="30%"}
+common uses are:
+
+-   climate data
+
+-   elevation models
+
+-   satellite imagery
+:::
+
+::: {.column .fragment width="70%"}
+```{r, echo=TRUE}
+library(terra)
+# create simple example raster
+r <- rast(nrows=20, ncols=20)
+values(r) <- runif(ncell(r), min=0, max=100)
+
+plot(r, col=terrain.colors(100), main="Raster = Grid of Values")
+```
+:::
+:::::
+
+:::
+
 ## Raster-vector operations
+
+Combine pixel-based data (rasters) with geometry-based data (vectors). Operations let us extract, summarize, or transform raster values using vector shapes.
+
+::::: columns
+::: {.column .fragment width="50%"}
+We will use our example raster:
+
+```{r, echo = TRUE}
+plot(r, col=terrain.colors(100), 
+     main="Example Raster")
+```
+:::
+
+::: {.column .fragment width="50%"}
+And create an example polygon:
+
+```{r, echo = TRUE}
+poly <- vect(
+  rbind(c(-100, -50), c(-100,  50), c( 100,  50),
+        c( 100, -50),c(-100, -50)),
+  type = "polygons")
+plot(r, col=terrain.colors(100), main="Raster + Polygon Overlay")
+lines(poly, col="red", lwd=3)
+```
+:::
+:::::
+
+------------------------------------------------------------------------
+
+1.  Crop raster (clip by extent or polygon)
+
+```{r, echo = TRUE}
+r_crop <- crop(r, poly)
+plot(r_crop, col=terrain.colors(100), main="Cropped Raster")
+lines(poly, col="red", lwd=3)
+```
+
+------------------------------------------------------------------------
+
+2.  Mask (set values outside polygon to NA)
+
+```{r, echo = TRUE}
+r_mask <- mask(r, poly)
+plot(r_mask, col=terrain.colors(100), main="Masked Raster")
+lines(poly, col="red", lwd = 3)
+```
+
+------------------------------------------------------------------------
+
+3.  Extract values (point or polygon sampling)
+
+```{r, echo = TRUE}
+vector_points <- vect(
+  data.frame(x = c(-120, -30, 40, 100),y = c(-60,  20,  50, -10)),
+  geom = c("x", "y"), crs = crs(r))
+plot(r, col=terrain.colors(100), main="Raster + Sample Points")
+plot(vector_points, add=TRUE, col="blue", pch=16, cex=1.2)
+```
+
+```{r, echo = TRUE}
+extract(r, vector_points)
+```
+
+------------------------------------------------------------------------
+
+4.  Zonal statistics (summarize raster values within polygons)
+
+```{r, echo = TRUE}
+extract(r, poly, fun=mean, na.rm=TRUE)
+extract(r, poly, fun=max, na.rm=TRUE)
+extract(r, poly, fun=min, na.rm=TRUE)
+```
 
 ## Map projections
 
 ::: {.incremental style="font-size: 125%;"}
-
-- 2 dimensional image of the 3 dimensional earth
-- maps can be either true in Area, shape, or distances
-- hundreds of projections have been developed
-- EPSG code defines the projection
-
+-   2 dimensional image of the 3 dimensional earth
+-   maps can be either true in Area, shape, or distances
+-   hundreds of projections have been developed
+-   EPSG code defines the projection
 :::
 
 add a picture of a projection here
 
-
 ## Projections in R
 
 ::: {style="font-size: 125%;"}
-
-- R does not project 'on the fly' 
-- we have to check projections before performing calculations
-
+-   R does not project 'on the fly'
+-   we have to check projections before performing calculations
 :::
 
 ::: fragment
 ```{r projections sf, echo=TRUE}
 bench
 ```
-
 :::
 
 ## Reproject in R
 
 Reproject Vector data
+
 ```{r reproject sf, eval=FALSE, echo=TRUE}
 st_transform(x, st_crs(y))      ## use another sf object
 st_transform(x, "EPSG:4326")    ## use an epsg code
 ```
 
 ::: fragment
-
 Reproject Raster data
+
 ```{r reproject raster, eval=FALSE, echo=TRUE}
 project(x, y)                   ## use another object
 project(x, 4326)                ## use an epsg code
 ```
-
 :::
 
 ::: fragment
-
 adding missing information
+
 ```{r reproject raster2, eval=FALSE, echo=TRUE}
 crs(x) <- "EPSG:4326"          
 ```
-
 :::
-
-
-
-
-
-
-
-
-
-
-
-
-

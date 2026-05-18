@@ -23,7 +23,7 @@ Central question: What is driving species distributions?
 
 Usually, there are many factors to be considered... two main ones being: specific species traits and climate.
 
-Here, we will learn easy first steps for investigating broad distributions patters, especially helpful when dealing with large scale analysis (e.g. including many species or large geographic areas)
+Here, we will learn easy first steps for investigating broad distribution patterns, especially helpful when dealing with large scale analysis (e.g. including many species or large geographic areas)
 
 Specifically, we will:
 
@@ -41,7 +41,7 @@ For the purpose of this workshop, we will only use a specific subset of larger d
 
 -   Spatial Data: Global species distribution polygons for terrestrial reptiles [GARD 1.7](https://datadryad.org/dataset/doi:10.5061/dryad.9cnp5hqmb) (Global Assessment of Reptile Distributions)
 
--   Trait Data: Table with numerous traits of reptiles from [RepTraits](https://figshare.com/articles/dataset/ReptTraits_a_comprehensive_database_of_ecological_traits_in_reptiles/24572683) version 1.2
+-   Trait Data: Table with numerous traits of reptiles from [ReptTraits](https://figshare.com/articles/dataset/ReptTraits_a_comprehensive_database_of_ecological_traits_in_reptiles/24572683) version 1.2
 
 -   Climate Data: annual mean temperature raster (averages from 1981-2010) from [CHELSA](https://www.chelsa-climate.org/datasets/chelsa_bioclim) (Climatologies at high resolution for the earth's land surface areas) version 2.1
 
@@ -174,7 +174,7 @@ shp.a <- shp_gecko[1,]
 rast.i<- rasterize(shp.a, bio1)
 rast.i[is.na(rast.i)] <- 0
 SVL.i <- max(gecko_traits$max_SVL[1])
-richness_SVL <- classify(rast.i, cbind(1, SVL.i))
+richness_SVL <- classify(rast.i, cbind(1, SVL.i)) # 1s in the raster get replaced with the max SVL value
 
 for (i in 2:nrow(shp_gecko)){
   shp.i <- shp_gecko[i,]
@@ -193,7 +193,7 @@ plot(average_SVL)
 
 ------------------------------------------------------------------------
 
-### Task 4: extracting climate data 
+### Task 4: extracting climate data
 
 ```{r}
 res_complete <- c()
