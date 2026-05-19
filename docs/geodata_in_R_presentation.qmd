@@ -218,7 +218,6 @@ plot(r, col=terrain.colors(100), main="Raster = Grid of Values")
 :::
 :::::
 
-:::
 
 ## Raster-vector operations
 
