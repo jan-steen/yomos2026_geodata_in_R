@@ -17,7 +17,7 @@ code-fold: show
 
 ## What is LiDAR?
 
-:::{.incremental}
+::: incremental
 -   "Light Detection and Ranging"
 -   uses laser beams to measure distances of objects to a sensor
 -   equipped to drones, airplanes or ground based stations
@@ -39,11 +39,10 @@ LiDAR is an abbreviation for "Light Detection and Ranging" and describes a speci
 
 Two main packages to analyse LiDAR data
 
-:::{.incremental}
+::: incremental
 -   "lidR" (https://r-lidar.github.io/lidRbook/index.html)
 
 -   "lasR"(https://r-lidar.github.io/lasR/articles/tutorial.html)
-
 :::
 
 ```{r}
@@ -59,7 +58,7 @@ There are two packages which are mainly used for analysing LiDAR data in R. "lid
 
 ## Use cases of LiDAR data
 
-:::{.incremental}
+::: incremental
 -   digital terrain and surface models
 -   creating 3D models
 -   forest inventories
@@ -105,7 +104,6 @@ trees <- readLAS("../data/lidR/2023-08-30_15-19-13_100pct_height.laz")
 ```
 
 ::: fragment
-
 Simple point cloud manipulations
 
 -   crop to a defined area
@@ -124,7 +122,6 @@ setupKnitr(autoprint = TRUE)
 trees_clip <- clip_rectangle(trees, -60, 20, -20, 60)
 trees_dec <- decimate_points(trees_clip, algorithm = random(150))
 ```
-
 :::
 
 ## First steps with .las files
@@ -136,13 +133,9 @@ plot(trees_dec)
 rglwidget(width = 800, height = 400)
 ```
 
-
 ```{r further decimating}
 trees_dec <- decimate_points(trees_clip, algorithm = random(80))
 ```
-
-
-
 
 ## Plotting transects
 
@@ -176,8 +169,6 @@ plot(meanz)
 ```
 :::
 
-
-
 ## Forest inventory 1/5
 
 To start our small forest inventory, we produce a canopy height model
@@ -195,8 +186,6 @@ chm <- rasterize_canopy(trees_clip, res = 0.5, p2r())
 plot(chm, col = col)
 ```
 :::
-
-
 
 ## Forest inventory 2/5
 
@@ -228,7 +217,6 @@ add_treetops3d(x, ttops)
 rglwidget(width = 800, height = 400)
 ```
 
-
 ## Forest inventory 4/5
 
 And based on the tree tops, we can segment all trees using one of two algorithms.
@@ -249,7 +237,6 @@ rglwidget(width = 800, height = 300)
 ```
 :::
 
-
 ## Forest inventory 5/5
 
 Now we can look at single trees from our dataset
@@ -265,15 +252,14 @@ rglwidget(width = 800, height = 350)
 ```
 :::
 
-
 ## Calculating woody biomass 1/3
-
-
 
 Using custom metrics we try to get a broad assumption of biomass for our segmented trees.
 
 ```{r biomass, echo = TRUE}
 #| output-location: column-fragment
+#| code-line-numbers: "1-9|12,13,15"
+
 custom_crown_metrics <- function(z, i) { # user-defined function
   metrics <- list(
     z_max = max(z),   # max height
@@ -291,13 +277,9 @@ metrics$G <- 0.7 * metrics$z_max + 0.1 * metrics$i_mean # set value of interest
 plot(metrics["G"], pal = hcl.colors, pch = 19) # some plotting
 ```
 
-
-
 ::: notes
 An important part of tree inventories is to calculate the biomass of wood on a specific area.
 :::
-
-
 
 ## Calculating woody biomass 2/3
 
@@ -364,7 +346,7 @@ rglwidget(width = 500, height = 270)
 
 ## First steps using lasR
 
-:::{.incremental}
+::: incremental
 -   lasR does not load data into the R environment
 -   so called pipelines are written and executed on a file
 -   way more effective for larger or multiple files
@@ -383,7 +365,7 @@ f <- path[2]
 
 ## Triangulation 1/2
 
-:::{.incremental}
+::: incremental
 -   First computation step for further analysis
 -   produces a "net" which spans over the points
 -   the result is a digital terrain model
@@ -408,6 +390,7 @@ However we produce 'nothing' because lasR itself does not save data in our envir
 In our next try, we again perform a triangulation, but include two additional functions, which write out our ground points and a normalised point cloud.
 
 ```{r ground and normalise, echo = TRUE}
+#| code-line-numbers: "1,2|3|4|"
 write1 = write_las(paste0("../data/lasR/*_ground.las"), filter = keep_ground())
 write2 = write_las(paste0("../data/lasR/*_normalized.las"), )
 del = lasR::triangulate(filter = keep_ground())
@@ -431,7 +414,6 @@ path <- list.files("../data/lasR/", pattern = ".las", full.names = TRUE, recursi
 ```
 
 ::::: columns
-
 ::: {.column width="50%"}
 Digital terrain model
 
@@ -442,7 +424,7 @@ rglwidget(width = 300, height = 300)
 ```
 :::
 
-::: {.column width="50%" .fragment}
+::: {.column .fragment width="50%"}
 Normalised point cloud
 
 ```{r plot normalise}
@@ -469,7 +451,6 @@ ans = exec(pipeline, on = f)
 plot(ans)
 ```
 
-
 ## Complex pipelines 1/2
 
 Again, we want to dive into forest monitoring applications:
@@ -478,6 +459,7 @@ We want to detect local maxima and therefore delineate single trees
 
 ::: fragment
 ```{r tree detection, warning=FALSE, echo = TRUE}
+#| code-line-numbers: "1,2|3|4,5"
 del = lasR::triangulate(filter = keep_first())
 chm = lasR::rasterize(0.5, del)
 chm2 = pit_fill(chm)
@@ -544,7 +526,7 @@ ans
 
 ## Conclusion
 
-::: {style="font-size: 150%;" .incremental}
+::: {.incremental style="font-size: 150%;"}
 -   both packages perform well for most jobs
 -   lidR has more experimental options
 -   lasR is especially useful for large amounts of data
