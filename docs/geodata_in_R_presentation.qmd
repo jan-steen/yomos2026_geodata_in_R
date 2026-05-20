@@ -31,7 +31,7 @@ simplified definition:
 ## Types of geodata
 
 ::::::: columns
-:::: {.column width="50%" style="font-size: 125%;"}
+:::: {.column width="40%" style="font-size: 125%;"}
 Vector data
 
 ::: incremental
@@ -41,7 +41,7 @@ Vector data
 :::
 ::::
 
-:::: {.column .fragment width="50%" style="font-size: 125%;"}
+:::: {.column .fragment width="40%" style="font-size: 125%;"}
 Raster data
 
 ::: incremental
@@ -79,6 +79,35 @@ library(sf)
 library(terra)
 ```
 
+
+
+::: fragment
+
+::::: columns
+::: {.column width="30%"}
+
+Further information: 
+
+<https://r.geocompx.org/>
+
+:::
+
+::: {.column width="70%"}
+
+```{r}
+#| label: geocomp
+#| fig-align: center
+#| fig-cap: ""
+knitr::include_graphics("../figures/cover2.png")
+```
+
+:::
+:::::
+
+
+:::
+
+
 ## First steps with vector data
 
 Our example dataset
@@ -103,7 +132,7 @@ pois <- st_read("../data/vectordata/pois.gpkg")
 str(landuse)
 ```
 
-## Thematic queries
+## Subsetting sf objects
 
 Where are benches around us?
 
