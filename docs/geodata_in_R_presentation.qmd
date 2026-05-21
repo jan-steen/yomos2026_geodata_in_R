@@ -150,6 +150,10 @@ mapview(bench)
 
 ## Topological queries 1/2
 
+-> How do certain spatial features interact with each other?
+
+::: fragment
+
 Which benches are located in the heathland?
 
 ```{r benches in heathland, echo = TRUE}
@@ -158,6 +162,7 @@ heath <- landuse |> filter(fclass=="heath")
 BenchInHeath <- st_intersects(bench,heath)
 BenchInHeath <- bench[lengths(BenchInHeath) > 0,]
 ```
+:::
 
 ::: fragment
 ```{r plot heath benches}
@@ -327,11 +332,19 @@ extract(r, poly, fun=min, na.rm=TRUE)
 ::: {.incremental style="font-size: 125%;"}
 -   2 dimensional image of the 3 dimensional earth
 -   maps can be either true in Area, shape, or distances
--   hundreds of projections have been developed
 -   EPSG code defines the projection
 :::
 
-add a picture of a projection here
+## Map projections
+
+::: {style="font-size: 125%;"}
+-   2 dimensional image of the 3 dimensional earth
+-   maps can be either true in Area, shape, or distances
+-   EPSG code defines the projection
+:::
+
+
+![Mercator projection (https://en.wikipedia.org/wiki/List_of_map_projections)](../figures/Mercator_projection_Square.JPG){fig-align="left"}
 
 ## Projections in R
 
