@@ -3,6 +3,7 @@ title: "LiDAR in R - YoMos 2026"
 author: "Jan Steen"
 format: 
   revealjs: 
+    theme: style.scss 
     embed-resources: true
     scrollable: true
     smaller: true
@@ -13,6 +14,10 @@ format:
 editor: visual
 footer: "YoMos Workshop 2026 - Analysing geodata in R"
 code-fold: show
+knitr:
+  opts_chunk:
+    dev: png
+    dev.args: { bg: "transparent" }
 ---
 
 ## What is LiDAR?
@@ -26,7 +31,7 @@ code-fold: show
 
 ```{r}
 #| label: M300
-#| fig-align: center
+#| fig-align: left
 #| fig-cap: "DJI M300 with a L1 LiDAR Sensor"
 knitr::include_graphics("../figures/Bild1.png")
 ```
@@ -47,7 +52,7 @@ Two main packages to analyse LiDAR data
 
 ```{r}
 #| label: point cloud
-#| fig-align: center
+#| fig-align: left
 #| fig-cap: "Point cloud from a forest in the Harz mountains"
 knitr::include_graphics("../figures/point_cloud.png")
 ```
@@ -129,7 +134,7 @@ trees_dec <- decimate_points(trees_clip, algorithm = random(150))
 ```{r first plot}
 #| output-location: slide
 
-plot(trees_dec)
+plot(trees_dec, bg = "#fafafa")
 rglwidget(width = 800, height = 400)
 ```
 
@@ -141,7 +146,7 @@ trees_dec <- decimate_points(trees_clip, algorithm = random(80))
 
 For visualisation we can plot transects through our point cloud.
 
-```{r transects, echo = TRUE}
+```{r transects, echo = TRUE, dev = "png", dev.args=list(bg="transparent")}
 trees_tr <- clip_transect(trees_dec, c(-40,20) ,c(-40,60) , width = 4, xz = TRUE)
 ggplot(trees_tr@data, aes(X,Z, color = Z)) + 
   geom_point(size = 0.5) + 
@@ -212,7 +217,7 @@ plot(sf::st_geometry(ttops), add = TRUE, pch = 3)
 We can also plot it in 3D
 
 ```{r 3D plot treetops}
-x <- plot(trees_dec, bg = "white", size = 4)
+x <- plot(trees_dec, bg = "#fafafa", size = 4)
 add_treetops3d(x, ttops)
 rglwidget(width = 800, height = 400)
 ```
@@ -232,7 +237,7 @@ trees_seg <- segment_trees(trees_dec, algo) # segment point cloud
 
 ::: fragment
 ```{r plot segmented trees}
-plot(trees_seg, bg = "white", size = 4, color = "treeID") # visualize trees
+plot(trees_seg, bg = "#fafafa", size = 4, color = "treeID") # visualize trees
 rglwidget(width = 800, height = 300)
 ```
 :::
@@ -247,7 +252,7 @@ tree <- filter_poi(trees_seg, treeID == 5)
 
 ::: fragment
 ```{r single tre plot}
-plot(tree, size = 8, bg = "white")
+plot(tree, size = 8, bg = "#fafafa")
 rglwidget(width = 800, height = 350)
 ```
 :::
@@ -339,7 +344,7 @@ writeLAS(clipped,"../data/lasR/driedorf_1_reduced.las")
 We can then plot our point cloud for a first look
 
 ```{r plot lasR}
-plot(clipped, color = "RGB")
+plot(clipped, color = "RGB", bg = "#fafafa")
 rglwidget(width = 500, height = 270)
 ```
 :::
@@ -419,7 +424,7 @@ Digital terrain model
 
 ```{r plot ground}
 ground <- readLAS(path[3])
-plot(ground, color = "RGB")
+plot(ground, color = "RGB", bg = "#fafafa")
 rglwidget(width = 300, height = 300)
 ```
 :::
@@ -429,7 +434,7 @@ Normalised point cloud
 
 ```{r plot normalise}
 normalise <- readLAS(path[4])
-plot(normalise, color = "RGB")
+plot(normalise, color = "RGB", bg = "#fafafa")
 rglwidget(width = 300, height = 300)
 ```
 :::

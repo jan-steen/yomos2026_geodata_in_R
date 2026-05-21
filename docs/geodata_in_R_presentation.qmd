@@ -3,6 +3,7 @@ title: "Analysing Geodata in R - YoMos 2026"
 author: "Yasemin Kukla & Jan Steen"
 format: 
   revealjs: 
+    theme: style.scss
     embed-resources: true
     scrollable: true
     smaller: true
@@ -13,6 +14,10 @@ format:
 editor: visual
 footer: "YoMos Workshop 2026 - Analysing geodata in R"
 code-fold: show
+knitr:
+  opts_chunk:
+    dev: png
+    dev.args: { bg: "transparent" }
 ---
 
 ## Geodata

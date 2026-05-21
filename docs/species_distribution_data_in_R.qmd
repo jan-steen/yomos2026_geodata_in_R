@@ -3,6 +3,7 @@ title: "Working with species distribution data in R - YoMos 2026"
 author: "Yasemin Kukla"
 format: 
   revealjs: 
+    theme: style.scss
     embed-resources: true
     scrollable: false
     smaller: true
@@ -15,6 +16,10 @@ format:
 editor: visual
 footer: "YoMos Workshop 2026 - Analysing geodata in R"
 code-fold: show
+knitr:
+  opts_chunk:
+    dev: png
+    dev.args: { bg: "transparent" }
 ---
 
 ## What will we learn and why?
