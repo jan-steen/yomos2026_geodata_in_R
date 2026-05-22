@@ -1,0 +1,78 @@
+/*-- scss:defaults --*/
+$theme-darkblue: #01364C;
+$theme-blue: #80BA27;
+$theme-orange: #e49400;
+$theme-black: #210400;
+$theme-white:#fafafa;
+
+$body-bg: $theme-white !default;
+$body-color: $theme-darkblue !default;
+$link-color: $theme-orange !default;
+// $selection-bg: $theme-blue !default;
+
+
+/*-- scss:rules --*/
+.reveal a {
+	color: $theme-orange !important;
+  }
+
+.reveal a:hover {
+	color: $theme-blue !important;
+  }
+
+h1.title {
+	font-size: 45px;
+	font-weight: 400;
+	border-radius: 25px;
+}
+
+p.subtitle {
+	font-size: 30px;
+	font-weight: 400;
+	border-radius: 25px;
+}
+
+.quarto-title-authors {
+	font-weight: 300;
+	font-size: 30px;
+	border-radius: 25px;
+}
+
+p.date {
+	font-weight: 300;
+	font-size: 30px;
+	border-radius: 25px;
+}
+
+.reveal blockquote{
+    color: $theme-darkblue !important;
+    border-left: 3px solid $theme-darkblue !important;
+}
+
+.reveal .footer {
+	color: $theme-orange !important;
+}
+
+.slide-number {
+  color: $theme-darkblue;
+}
+
+// background colour for slide headings
+.reveal h2 {
+	background-color: #01364C;
+	padding: 5px 0px 5px 10px;
+	color: #fafafa;
+	border-radius: 12px;
+}
+
+
+p.caption {
+	font-size: 20px !important;
+}
+
+.reveal .slide-logo {
+  height: 300px !important;
+  width: 110px !important;
+  max-width: unset !important;
+  max-height: unset !important;
+}

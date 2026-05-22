@@ -3,6 +3,7 @@ title: "Analysing Geodata in R - YoMos 2026"
 author: "Yasemin Kukla & Jan Steen"
 format: 
   revealjs: 
+    theme: style.scss
     embed-resources: true
     scrollable: true
     smaller: true
@@ -13,6 +14,10 @@ format:
 editor: visual
 footer: "YoMos Workshop 2026 - Analysing geodata in R"
 code-fold: show
+knitr:
+  opts_chunk:
+    dev: png
+    dev.args: { bg: "transparent" }
 ---
 
 ## Geodata
@@ -31,7 +36,7 @@ simplified definition:
 ## Types of geodata
 
 ::::::: columns
-:::: {.column width="50%" style="font-size: 125%;"}
+:::: {.column width="40%" style="font-size: 125%;"}
 Vector data
 
 ::: incremental
@@ -41,7 +46,7 @@ Vector data
 :::
 ::::
 
-:::: {.column .fragment width="50%" style="font-size: 125%;"}
+:::: {.column .fragment width="40%" style="font-size: 125%;"}
 Raster data
 
 ::: incremental
@@ -79,6 +84,35 @@ library(sf)
 library(terra)
 ```
 
+
+
+::: fragment
+
+::::: columns
+::: {.column width="30%"}
+
+Further information: 
+
+<https://r.geocompx.org/>
+
+:::
+
+::: {.column width="70%"}
+
+```{r}
+#| label: geocomp
+#| fig-align: center
+#| fig-cap: ""
+knitr::include_graphics("../figures/cover2.png")
+```
+
+:::
+:::::
+
+
+:::
+
+
 ## First steps with vector data
 
 Our example dataset
@@ -103,7 +137,7 @@ pois <- st_read("../data/vectordata/pois.gpkg")
 str(landuse)
 ```
 
-## Thematic queries
+## Subsetting sf objects
 
 Where are benches around us?
 
@@ -121,6 +155,10 @@ mapview(bench)
 
 ## Topological queries 1/2
 
+-> How do certain spatial features interact with each other?
+
+::: fragment
+
 Which benches are located in the heathland?
 
 ```{r benches in heathland, echo = TRUE}
@@ -129,6 +167,7 @@ heath <- landuse |> filter(fclass=="heath")
 BenchInHeath <- st_intersects(bench,heath)
 BenchInHeath <- bench[lengths(BenchInHeath) > 0,]
 ```
+:::
 
 ::: fragment
 ```{r plot heath benches}
@@ -218,7 +257,6 @@ plot(r, col=terrain.colors(100), main="Raster = Grid of Values")
 :::
 :::::
 
-:::
 
 ## Raster-vector operations
 
@@ -299,11 +337,19 @@ extract(r, poly, fun=min, na.rm=TRUE)
 ::: {.incremental style="font-size: 125%;"}
 -   2 dimensional image of the 3 dimensional earth
 -   maps can be either true in Area, shape, or distances
--   hundreds of projections have been developed
 -   EPSG code defines the projection
 :::
 
-add a picture of a projection here
+## Map projections
+
+::: {style="font-size: 125%;"}
+-   2 dimensional image of the 3 dimensional earth
+-   maps can be either true in Area, shape, or distances
+-   EPSG code defines the projection
+:::
+
+
+![Mercator projection (https://en.wikipedia.org/wiki/List_of_map_projections)](../figures/Mercator_projection_Square.JPG){fig-align="left"}
 
 ## Projections in R
 
