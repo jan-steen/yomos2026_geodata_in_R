@@ -24,9 +24,14 @@ knitr:
 
 ::: incremental
 -   "Light Detection and Ranging"
+
 -   uses laser beams to measure distances of objects to a sensor
--   equipped to drones, airplanes or ground based stations
+
+-   can pierce through vegetation
+
 -   output are three dimensional point clouds
+
+-   equipped to drones, airplanes or ground based stations
 :::
 
 ```{r}
@@ -353,7 +358,7 @@ rglwidget(width = 500, height = 270)
 
 ::: incremental
 -   lasR does not load data into the R environment
--   so called pipelines are written and executed on a file
+-   so called pipelines are written and executed on a file or folder
 -   way more effective for larger or multiple files
 :::
 
@@ -377,18 +382,23 @@ f <- path[2]
 :::
 
 ::: fragment
-We produce a short pipeline which combines reading an las file and then triangulating the ground points. Then we execute the pipeline on the file in our filepath.
+We produce a short pipeline which combines reading an las file and then triangulating the ground points. The result is stored as a raster. Then we execute the pipeline on the file in our filepath.
 
-```{r triangulate, eval = FALSE, echo=TRUE}
-pipeline = reader() + triangulate(filter = keep_ground(), ofile = tempgpkg())
+```{r rasterise, warning = FALSE, echo = TRUE}
+#| output-location: column-fragment
+#| fig-width: 8
+#| fig-height: 4
+#| code-line-numbers: "1|2|3|4,5|"
+read = reader()
+del = lasR::triangulate(filter = keep_ground())
+dtm = lasR::rasterize(res = 1)
+pipeline = read + del + dtm
 ans = exec(pipeline, on = f)
-ans
+
+plot(ans)
 ```
 :::
 
-::: fragment
-However we produce 'nothing' because lasR itself does not save data in our environment. We have to include certain steps in our pipeline like 'write_las'.
-:::
 
 ## Triangulation 2/2
 
@@ -440,21 +450,6 @@ rglwidget(width = 300, height = 300)
 :::
 :::::
 
-## Rasterise LiDAR data
-
-For some use cases we need raster data, which we can get if we change our pipeline and add the 'rasterize' function.
-
-```{r rasterise, warning = FALSE, echo = TRUE}
-#| output-location: column-fragment
-#| fig-width: 8
-#| fig-height: 6
-del = lasR::triangulate(filter = keep_ground())
-dtm = lasR::rasterize(res = 1)
-pipeline = del + dtm
-ans = exec(pipeline, on = f)
-
-plot(ans)
-```
 
 ## Complex pipelines 1/2
 

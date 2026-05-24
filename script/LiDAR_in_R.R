@@ -200,13 +200,12 @@ f <- path[2]
 # We produce a short pipeline which combines reading an las file and then triangulating 
 # the ground points. Then we execute the pipeline on the file in our filepath.
 
-pipeline = reader() + triangulate(filter = keep_ground(), ofile = tempgpkg())
+del = lasR::triangulate(filter = keep_ground())
+dtm = lasR::rasterize(res = 1)
+pipeline = del + dtm
 ans = exec(pipeline, on = f)
-ans
- 
-# However we produce 'nothing' because lasR itself does not save data in our environment. 
 
-# We have to include certain steps in our pipeline like 'write_las'.
+plot(ans)
 
   
 # In our next try, we again perform a triangulation, but include two additional functions,
@@ -240,21 +239,7 @@ plot(normalise, color = "RGB")
 
 
 
-################################################################################
-## Rasterise LiDAR data
-  
-## For some use cases we need raster data, which we can get if we change our pipeline
-## and add the 'rasterize' function. 
 
-
-del = lasR::triangulate(filter = keep_ground())
-dtm = lasR::rasterize(res = 1)
-pipeline = del + dtm
-ans = exec(pipeline, on = f)
-
-plot(ans)
-
-  
   
 ################################################################################
 ## Complex pipelines
